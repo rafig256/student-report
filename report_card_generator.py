@@ -11,11 +11,10 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
-
-pdfmetrics.registerFont(TTFont('IranSans', 'fonts/IRANSans.ttf'))
 import os
 
 # ثبت فونت
+pdfmetrics.registerFont(TTFont('IranSans', 'fonts/IRANSans.ttf'))
 font_path = os.path.join("fonts", "Vazir.ttf")
 pdfmetrics.registerFont(TTFont("Vazir", font_path))
 
@@ -36,29 +35,34 @@ def generate_report_card(student_name, student_level, grades_df, output_path):
 
     # تیتر جدول
     c.setFont("Vazir", 12)
-    c.drawRightString(width - 40, height - 120, reshape_text("لیست نمرات:"))
+    c.drawRightString(width - 40, height - 120, reshape_text("کارنامه:"))
 
     y = height - 150
     c.setFont("Vazir", 11)
 
     table_data = [[
-    get_display(reshape_text("نمره")),
-    get_display(reshape_text("نام گروه")),
-    get_display(reshape_text("رتبه در گروه")),
-    get_display(reshape_text("رتبه کل"))
-]]
+    reshape_text("نام درس"),
+    reshape_text("نمره"),
+    reshape_text("نام گروه"),
+    reshape_text("رتبه در گروه"),
+    reshape_text("رتبه کل")
+    ]][0][::-1]
+
+    table_data = [table_data]
 
     # افزودن سطرهای اطلاعاتی
     for _, row in grades_df.iterrows():
-        table_data.append([
-            row['score'],
-            str(row['group']),
-            int(row['rank_in_group']),
-            int(row['rank_in_lesson']),
-        ])
+        lesson_name = reshape_text(str(row['lesson_name']))
+        score = str(row['score'])
+        group = reshape_text(str(row['group']))
+        rank_in_group = str(row['rank_in_group'])
+        rank_in_lesson = str(row['rank_in_lesson'])
+
+        row_data = [lesson_name, score, group, rank_in_group, rank_in_lesson][::-1]
+        table_data.append(row_data)
 
     # ساخت جدول
-    table = Table(table_data, colWidths=[60, 100, 90, 80])
+    table = Table(table_data, colWidths=[120 , 60, 100, 90, 80])
 
     # استایل جدول
     table.setStyle(TableStyle([
