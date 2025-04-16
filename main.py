@@ -1,5 +1,8 @@
 import pandas as pd
+from report_card_generator import generate_report_card
+import os
 
+output_dir = "report_output"
 # خواندن داده‌ها از فایل اکسل
 students = pd.read_excel("sample-data.xlsx", sheet_name="students" ,usecols="A,B,F")
 lessons = pd.read_excel("sample-data.xlsx", sheet_name="lessons")
@@ -8,7 +11,8 @@ grades = pd.read_excel("sample-data.xlsx", sheet_name="grades")
 
 grades_full = grades \
     .merge(students, left_on="st_id", right_on="id") \
-    .merge(lessons[['id','level','factor']], left_on="l_id", right_on="id", suffixes=("_student", "_lesson")) \
+    .merge(lessons[['id', 'name', 'level', 'factor']].rename(columns={'name': 'lesson_name'}), \
+    left_on="l_id", right_on="id", suffixes=("_student", "_lesson")) \
     .merge(student_lesson[['st_id', 'l_id', 'group']], on=["st_id", "l_id"])
 
 grades_full['rank_in_group'] = grades_full.groupby(['l_id','group'])['score'] \
@@ -19,7 +23,7 @@ grades_full['rank_in_lesson'] = grades_full.groupby('l_id')['score'] \
 
 grades_full['weighted_score'] = grades_full['score'] * grades_full['factor']
 
-weighted_avg = grades_full.groupby(['st_id', 'level_student']).apply(
+weighted_avg = grades_full.groupby(['st_id', 'level_student'], group_keys=False).apply(
     lambda df: pd.Series({
         'total_weighted': (df['score'] * df['factor']).sum(),
         'total_factors': df['factor'].sum()
@@ -36,6 +40,16 @@ grades_full = grades_full.merge(
     weighted_avg[['st_id', 'rank_in_level', 'weighted_avg']],
     on='st_id'
 )
+
+
+for student_id, student_data in grades_full.groupby("st_id"):
+    student_name = student_data.iloc[0]['st_name']
+    student_level = student_data.iloc[0]['level_student']
+    output_path = os.path.join(output_dir, f"{student_name}.pdf")
+
+    generate_report_card(student_name, student_level, student_data, output_path)
+
+print("تمام کارنامه‌ها ساخته شدند.")
 
 # ذخیره فایل اکسل داخل پوشه report
 grades_full.to_excel("report_output/grades_report.xlsx", index=False)
