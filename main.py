@@ -8,7 +8,11 @@ students = pd.read_excel("sample-data.xlsx", sheet_name="students" ,usecols="A,B
 lessons = pd.read_excel("sample-data.xlsx", sheet_name="lessons")
 student_lesson = pd.read_excel("sample-data.xlsx", sheet_name="student_lesson")
 grades = pd.read_excel("sample-data.xlsx", sheet_name="grades")
+config_df = pd.read_excel("sample-data.xlsx", sheet_name='config')
 
+config_dict = dict(zip(config_df['key'], config_df['value']))
+
+print(config_dict)
 grades_full = grades \
     .merge(students, left_on="st_id", right_on="id") \
     .merge(lessons[['id', 'name', 'level', 'factor']].rename(columns={'name': 'lesson_name'}), \
@@ -23,6 +27,7 @@ grades_full['rank_in_lesson'] = grades_full.groupby('l_id')['score'] \
 
 grades_full['weighted_score'] = grades_full['score'] * grades_full['factor']
 
+# میانگین نمرات بر حسب ضرایب
 weighted_avg = grades_full.groupby(['st_id', 'level_student'], group_keys=False).apply(
     lambda df: pd.Series({
         'total_weighted': (df['score'] * df['factor']).sum(),
@@ -47,9 +52,9 @@ for student_id, student_data in grades_full.groupby("st_id"):
     student_level = student_data.iloc[0]['level_student']
     output_path = os.path.join(output_dir, f"{student_name}.pdf")
 
-    generate_report_card(student_name, student_level, student_data, output_path)
+    generate_report_card(student_name, student_level, student_data, output_path , config_dict )
 
 print("تمام کارنامه‌ها ساخته شدند.")
-
+# print(grades_full)
 # ذخیره فایل اکسل داخل پوشه report
 grades_full.to_excel("report_output/grades_report.xlsx", index=False)
