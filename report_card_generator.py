@@ -42,9 +42,9 @@ def generate_report_card(student_name, student_level, grades_df, output_path):
 
     table_data = [[
     reshape_text("نام درس"),
-    reshape_text("نمره"),
     reshape_text("نام گروه"),
-    reshape_text("رتبه در گروه"),
+    reshape_text("نمره"),
+    reshape_text("رتبه در درس"),
     reshape_text("رتبه کل")
     ]][0][::-1]
 
@@ -53,16 +53,25 @@ def generate_report_card(student_name, student_level, grades_df, output_path):
     # افزودن سطرهای اطلاعاتی
     for _, row in grades_df.iterrows():
         lesson_name = reshape_text(str(row['lesson_name']))
-        score = str(row['score'])
         group = reshape_text(str(row['group']))
         rank_in_group = str(row['rank_in_group'])
+        score = str(row['score'])
         rank_in_lesson = str(row['rank_in_lesson'])
 
-        row_data = [lesson_name, score, group, rank_in_group, rank_in_lesson][::-1]
+        row_data = [lesson_name,group , score , rank_in_group, rank_in_lesson][::-1]
         table_data.append(row_data)
 
+    summary_row = [
+        "",  # نام درس
+        "",  # نام گروه
+        str("mmm"),
+        str("mmm"),
+        str("mmm")
+    ][::-1]  # ترتیب RTL
+
+    table_data.append(summary_row)
     # ساخت جدول
-    table = Table(table_data, colWidths=[120 , 60, 100, 90, 80])
+    table = Table(table_data, colWidths=[60 , 60, 60, 100, 120])
 
     # استایل جدول
     table.setStyle(TableStyle([
