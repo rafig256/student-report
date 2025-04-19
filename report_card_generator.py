@@ -23,7 +23,7 @@ def reshape_text(text):
     return get_display(reshaped)
 
 
-def generate_report_card(student_name, student_level, grades_df, output_path , config_dict):
+def generate_report_card(student_data, output_path, config_dict, student_info):
     
     c = canvas.Canvas(output_path, pagesize=A4)
     width, height = A4
@@ -63,21 +63,38 @@ def generate_report_card(student_name, student_level, grades_df, output_path , c
     info_table.wrapOn(c, width, height)
     info_table.drawOn(c, x, y)
 
-    next_content_y = y - 30  # برای مثال، ادامه‌ی محتوا از اینجا شروع می‌شه
+    next_content_y = y - 100  # برای مثال، ادامه‌ی محتوا از اینجا شروع می‌شه
 
-    # نام دانش‌آموز
-    c.setFont("Vazir", 14)
-    c.drawRightString(width - 40, next_content_y, reshape_text(f"نام دانش‌آموز: {student_name}"))
-    next_content_y -= 30 
+    # اطلاعات دانش‌آموز به‌صورت جدول
+    student_info_data = [
+        [reshape_text("نام"), reshape_text(str(student_info.get("name", ""))),
+         reshape_text("نام پدر"), reshape_text(str(student_info.get("father", ""))),
+         reshape_text("کد ملی"), reshape_text(str(student_info.get("national_id", "")))][::-1],
+        [reshape_text("رشته تحصیلی"), reshape_text(str(student_info.get("field", ""))),
+         reshape_text("پایه تحصیلی"), reshape_text(str(student_info.get("level", ""))),
+         reshape_text("جنسیت"), reshape_text(str(student_info.get("sex", "")))][::-1],
+    ][::-1]  # ترتیب سطرها از پایین به بالا برای تنظیم Y صحیح
 
-    # پایه‌ی تحصیلی
-    c.drawRightString(width - 40, next_content_y, reshape_text(f"پایه: {student_level}"))
-    next_content_y -= 30
+    student_col_widths = [80, 80, 80, 90, 80, 90]
+    student_info_table = Table(student_info_data, colWidths=student_col_widths)
+    student_info_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), 'IranSans'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BOX', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
 
-    # تیتر جدول
-    c.setFont("Vazir", 12)
-    c.drawRightString(width - 40, next_content_y, reshape_text("کارنامه:"))
-    next_content_y -= 100
+
+    student_info_table.wrapOn(c, width, height)
+    student_info_table.drawOn(c, width - sum(student_col_widths) - 40, next_content_y)
+
+    next_content_y -= 80  # فاصله از جدول بعدی
 
 
     c.setFont("Vazir", 11)
@@ -96,7 +113,7 @@ def generate_report_card(student_name, student_level, grades_df, output_path , c
 
     sum_factor = 0
     # افزودن سطرهای اطلاعاتی
-    for _, row in grades_df.iterrows():
+    for _, row in student_data.iterrows():
         lesson_name = reshape_text(str(row['lesson_name']))
         group = reshape_text(str(row['group']))
         rank_in_group = str(row['rank_in_group'])

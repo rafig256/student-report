@@ -4,7 +4,8 @@ import os
 
 output_dir = "report_output"
 # خواندن داده‌ها از فایل اکسل
-students = pd.read_excel("sample-data.xlsx", sheet_name="students" ,usecols="A,B,F")
+students = pd.read_excel("sample-data.xlsx", sheet_name="students")
+students_dict = students.set_index("id").to_dict(orient="index")
 lessons = pd.read_excel("sample-data.xlsx", sheet_name="lessons")
 student_lesson = pd.read_excel("sample-data.xlsx", sheet_name="student_lesson")
 grades = pd.read_excel("sample-data.xlsx", sheet_name="grades")
@@ -12,7 +13,6 @@ config_df = pd.read_excel("sample-data.xlsx", sheet_name='config')
 
 config_dict = dict(zip(config_df['key'], config_df['value']))
 
-print(config_dict)
 grades_full = grades \
     .merge(students, left_on="st_id", right_on="id") \
     .merge(lessons[['id', 'name', 'level', 'factor']].rename(columns={'name': 'lesson_name'}), \
@@ -48,13 +48,11 @@ grades_full = grades_full.merge(
 
 
 for student_id, student_data in grades_full.groupby("st_id"):
-    student_name = student_data.iloc[0]['st_name']
-    student_level = student_data.iloc[0]['level_student']
-    output_path = os.path.join(output_dir, f"{student_name}.pdf")
-
-    generate_report_card(student_name, student_level, student_data, output_path , config_dict )
+    student_info = students_dict.get(student_id, {})
+    output_path = os.path.join(output_dir, f"{student_info.get('name', student_id)}.pdf")
+    generate_report_card(student_data, output_path, config_dict, student_info)
 
 print("تمام کارنامه‌ها ساخته شدند.")
-# print(grades_full)
+
 # ذخیره فایل اکسل داخل پوشه report
 grades_full.to_excel("report_output/grades_report.xlsx", index=False)
