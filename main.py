@@ -1,8 +1,10 @@
 import pandas as pd
 from report_card_generator import generate_report_card
+from group_report_generator import generate_group_report
 import os
 
-output_dir = "report_output"
+output_dir = "report_output" #نام پوشه ی خروجی کارنامه ی دانش آموزان
+group_output_dir = "group_output"
 # خواندن داده‌ها از فایل اکسل
 students = pd.read_excel("sample-data.xlsx", sheet_name="students")
 students_dict = students.set_index("id").to_dict(orient="index")
@@ -51,6 +53,12 @@ for student_id, student_data in grades_full.groupby("st_id"):
     student_info = students_dict.get(student_id, {})
     output_path = os.path.join(output_dir, f"{student_info.get('name', student_id)}.pdf")
     generate_report_card(student_data, output_path, config_dict, student_info)
+
+grouped = grades_full.groupby('group')
+
+for group_name, group_df in grouped:
+    output_path = os.path.join(group_output_dir, f"group_{group_name}.pdf")
+    generate_group_report(group_df, output_path, group_name)
 
 print("تمام کارنامه‌ها ساخته شدند.")
 

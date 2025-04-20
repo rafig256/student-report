@@ -1,3 +1,5 @@
 __pycache__/
 report_output/*
 !report_output/.gitkeep
+group_output/*
+!group_output/.gitkeep

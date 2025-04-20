@@ -9,8 +9,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import ttfonts
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
 import os
 
 # ثبت فونت
