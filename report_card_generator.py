@@ -75,7 +75,7 @@ def generate_report_card(student_data, output_path, config_dict, student_info):
          reshape_text("جنسیت"), reshape_text(str(student_info.get("sex", "")))][::-1],
     ][::-1]  # ترتیب سطرها از پایین به بالا برای تنظیم Y صحیح
 
-    student_col_widths = [80, 80, 80, 90, 80, 90]
+    student_col_widths = [80, 80, 90, 80, 90, 80]
     student_info_table = Table(student_info_data, colWidths=student_col_widths)
     student_info_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'IranSans'),
