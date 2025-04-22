@@ -22,8 +22,12 @@ def generate_group_report(group_df, output_path, group_name):
     c = canvas.Canvas(output_path, pagesize=A4)
     width, height = A4
 
+    # استخراج نام درس و مقطع از اولین ردیف
+    lesson_name = group_df["lesson_name"].iloc[0]
+    level = group_df["level_student"].iloc[0]
+
     c.setFont("Vazir", 14)
-    title_text = reshape_text(f"گزارش نمرهات گروه {group_name}")
+    title_text = reshape_text(f"گزارش نمرات درس {lesson_name} در پایه ی {level} گروه {group_name}")
     c.drawRightString(width - 50, height - 50, title_text)
 
     table_data = [

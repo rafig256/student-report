@@ -30,12 +30,16 @@ grades_full['rank_in_lesson'] = grades_full.groupby('l_id')['score'] \
 grades_full['weighted_score'] = grades_full['score'] * grades_full['factor']
 
 # میانگین نمرات بر حسب ضرایب
-weighted_avg = grades_full.groupby(['st_id', 'level_student'], group_keys=False).apply(
+grouped_df = grades_full.groupby(['st_id', 'level_student'], group_keys=False)
+
+weighted_avg = grouped_df[['score', 'factor']].apply(
     lambda df: pd.Series({
         'total_weighted': (df['score'] * df['factor']).sum(),
         'total_factors': df['factor'].sum()
     })
 ).reset_index()
+
+
 
 weighted_avg['weighted_avg'] = weighted_avg['total_weighted'] / weighted_avg['total_factors']
 
@@ -55,6 +59,7 @@ for student_id, student_data in grades_full.groupby("st_id"):
     generate_report_card(student_data, output_path, config_dict, student_info)
 
 grouped = grades_full.groupby('group')
+
 
 for group_name, group_df in grouped:
     output_path = os.path.join(group_output_dir, f"group_{group_name}.pdf")
